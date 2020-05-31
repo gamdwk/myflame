@@ -9,9 +9,6 @@ def get_request_obj(name):
     top = _request_ctx_content.top
     if top is None:
         raise RuntimeError(request_error_msg)
-    if name is 'session':
-        if current_app.config["SECRET_KEY"] is None:
-            raise RuntimeError("No SECRET_KEY in current_app's config")
 
     return getattr(top, name)
 

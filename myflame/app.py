@@ -1,16 +1,17 @@
 from werkzeug import run_simple
 from werkzeug.exceptions import HTTPException, default_exceptions, InternalServerError
 from werkzeug.utils import cached_property
-from werkzeug.routing import Map, Rule, RuleFactory
+from werkzeug.routing import Map, Rule
 from werkzeug.wrappers import BaseResponse
-from os.path import join, dirname
+from os.path import join
 import sys
 from .wrappers import Request, Response
 from .config import Config
 from .content import RequestContent, ApplicationContent
-from .gobal import has_app_ctx, current_app, request
+from .gobal import request
 from .template import build_env
 from .helper import send_form_dictionary
+from .session import SessionInterface
 
 
 class Application(object):
@@ -29,6 +30,8 @@ class Application(object):
     static_folder = None
     before_request_funcs = []
     after_request_funcs = []
+    session_interface = SessionInterface()
+    global_dict = {}
 
     def __init__(self, template_path='template', static_folder='static', root_path=None):
         self.url_map = self.url_map_class()
@@ -38,11 +41,12 @@ class Application(object):
         }"""
         self.template_path = template_path
         self.config = self.config_class()
-        self.root_path = root_path or sys.argv[0]
+        self.root_path = root_path or sys.path[0]
         self.config.make_config(root_path=root_path)
         self.jinja_env = build_env(template_path=self.template_path, root_path=self.root_path)
         self.add_url_rule('/static/<path:filename>', view_func=self.get_static_file,
                           endpoint='static', methods=['GET'])
+        self.after_request_funcs.append(self.save_session)
         self.application_content(self).push()
 
     def __call__(self, environ, start_response):
@@ -53,7 +57,6 @@ class Application(object):
         ctx.push()
         try:
             response = self.dispatch_request(environ)
-            response = self.process_response(response)
             return response(environ, start_response)
         finally:
             ctx.pop()
@@ -68,8 +71,11 @@ class Application(object):
             if isinstance(rv, int):
                 rv = str(rv)
             if isinstance(rv, BaseResponse):
-                return rv
-            return self.response_class(rv)
+                response = rv
+            else:
+                response = self.response_class(rv)
+            response = self.process_response(response)
+            return response
         except Exception as ex:
             return self.handler_error(ex)
 
@@ -160,7 +166,7 @@ class Application(object):
                 return rv
 
     def process_response(self, response):
-        for f in self.before_request_funcs:
+        for f in self.after_request_funcs:
             response = f(response)
         return response
 
@@ -171,4 +177,6 @@ class Application(object):
         from werkzeug.test import Client
         return Client(self, self.response_class)
 
-
+    def save_session(self, response):
+        from .gobal import session
+        return self.session_interface.save_session(response, self, session)

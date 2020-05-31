@@ -6,7 +6,11 @@
 </head>
 <body>
 <p>
-    hello {{name}}!
+    {% if 'name' in session %}
+    {{session["name"]}}你好!
+    {% else %}
+    游客你好！
+    {% endif %}
 </p>
 </body>
 </html>

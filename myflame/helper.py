@@ -11,7 +11,7 @@ from werkzeug.wrappers import BaseResponse
 from collections import Iterable
 import json
 
-default_root_path = dirname(sys.argv[0])
+default_root_path = dirname(sys.path[0])
 
 
 def find_file(filename, root_path=default_root_path):
@@ -48,5 +48,7 @@ def make_response(rv, **kwargs):
     if isinstance(rv, BaseResponse):
         return rv
     if not isinstance(rv, Iterable):
+        rv = json.dumps(rv)
+    elif isinstance(rv, dict) or isinstance(rv, list):
         rv = json.dumps(rv)
     return current_app.response_class(rv, **kwargs)

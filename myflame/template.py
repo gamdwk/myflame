@@ -1,4 +1,4 @@
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Environment, FileSystemLoader
 from os.path import join
 from .helper import find_folder, make_response
 from .gobal import current_app, request, session, g

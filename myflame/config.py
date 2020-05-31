@@ -1,10 +1,12 @@
+from datetime import timedelta
+
+
 class Config(dict):
     debug = False
     database_uri = None
     host = None
     port = None
-    secret_key = None
-    session_life_time = None
+    session_life_time = timedelta(days=31)
     session_name = 'session'
     session_type = 'cookie'
     session_redis = None
