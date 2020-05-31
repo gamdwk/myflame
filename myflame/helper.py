@@ -29,7 +29,6 @@ def find_folder(folder, root_path=default_root_path):
 def send_file(path):
     if not isabs(path):
         path = join(default_root_path, path)
-    print(path)
     if not isfile(path):
         raise NotFound
     file = open(path, 'rb')
