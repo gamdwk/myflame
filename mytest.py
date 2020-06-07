@@ -39,4 +39,10 @@ def login():
     return rend_template('login.html')
 
 
+@app.route('/logout')
+def logout():
+    del session['name']
+    return redirect(url_for('index'))
+
+
 app.run(debug=True)

@@ -8,6 +8,9 @@
 <p>
     {% if 'name' in session %}
     {{session["name"]}}你好!
+    <form name="form1" method="post" action="{{ url_for('logout') }}" >
+    <button id="logout" type='submit'>登出</button>
+    </form>
     {% else %}
     游客你好！
     {% endif %}

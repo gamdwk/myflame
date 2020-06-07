@@ -124,7 +124,7 @@ class Application(object):
     # error_handler,when catch exception, return handel()
     def register_error_handler(self, status_or_error, handler):
         if isinstance(status_or_error, int):
-            if status_or_error in self.exceptions:
+            if status_or_error in self.exceptions.keys():
                 status_or_error = self.exceptions[status_or_error]
             else:
                 raise KeyError("status not in exceptions")

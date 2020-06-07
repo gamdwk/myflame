@@ -27,7 +27,7 @@ def build_env(template_path='template', root_path=None):
         request=request,
     )
     return env
- 
+
 
 def rend_template(template_name, **context):
     t = current_app.jinja_env.get_template(template_name)
